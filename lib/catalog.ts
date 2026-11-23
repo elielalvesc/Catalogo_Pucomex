@@ -8,7 +8,8 @@ export type Attribute = {
   condicionados?: {atributo:Attribute; condicao:Condition; obrigatorio:boolean; multivalorado:boolean; dataInicioVigencia?:string; dataFimVigencia?:string}[];
 };
 export type Values = Record<string, string | string[] | Record<string,string>[] >;
-export type Product = {id?:string; cpfCnpjRaiz:string; ncm:string; denominacao:string; descricao:string; codigosInterno:string[]; situacao:'ATIVADO'|'RASCUNHO'; codigo?:number; versao?:string; values:Values; updatedAt?:string};
+export type Manufacturer = {code:string; country:string};
+export type Product = {id?:string; cpfCnpjRaiz:string; ncm:string; denominacao:string; descricao:string; codigosInterno:string[]; situacao:'ATIVADO'|'RASCUNHO'; codigo?:number; versao?:string; manufacturer?:Manufacturer; portalProductCode?:string; values:Values; updatedAt?:string};
 export type Schema = {ncm:string; attributes:Attribute[]; date:string; version:string; live:boolean; warning?:string};
 export function today() { return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo'}).format(new Date()); }
 export function inForce(x:{dataInicioVigencia?:string;dataFimVigencia?:string}, date=today()) {return (!x.dataInicioVigencia || x.dataInicioVigencia<=date) && (!x.dataFimVigencia || x.dataFimVigencia>=date);}

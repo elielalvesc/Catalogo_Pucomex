@@ -1,8 +1,8 @@
 import type {Product,Values} from './catalog';
 export type Batch={id:string;company:string;ncm:string;template:Product;items:Product[];updatedAt?:string};
-export type RepeatField='denominacao'|'descricao'|'values'|'situacao';
+export type RepeatField='denominacao'|'descricao'|'values'|'situacao'|'manufacturer';
 export const emptyProduct:Product={cpfCnpjRaiz:'',ncm:'',denominacao:'',descricao:'',codigosInterno:[],situacao:'ATIVADO',values:{}};
-export function newItem(template:Product,company:string,ncm:string):Product {return {...structuredClone(template),id:crypto.randomUUID(),cpfCnpjRaiz:company,ncm,codigo:undefined,versao:undefined,codigosInterno:[]};}
+export function newItem(template:Product,company:string,ncm:string):Product {return {...structuredClone(template),id:crypto.randomUUID(),cpfCnpjRaiz:company,ncm,codigo:undefined,versao:undefined,portalProductCode:undefined,codigosInterno:[]};}
 export function normalizeItems(batch:Batch):Product[] {return batch.items.map(p=>({...p,cpfCnpjRaiz:batch.company,ncm:batch.ncm,codigosInterno:p.codigosInterno.map(x=>x.trim()).filter(Boolean)}));}
 const filled=(v:Values[string]|undefined)=>typeof v==='string'?!!v.trim():Array.isArray(v)&&v.some(x=>typeof x==='string'?!!x.trim():Object.values(x).some(Boolean));
 export function repeatFields(items:Product[],template:Product,selected:Set<string>,fields:RepeatField[],overwrite:boolean):Product[] {
@@ -11,13 +11,14 @@ export function repeatFields(items:Product[],template:Product,selected:Set<strin
   const next=structuredClone(item);
   for(const field of fields) {
    if(field==='values') {for(const [key,value] of Object.entries(template.values)) if(filled(value)&&(overwrite||!filled(next.values[key])))next.values[key]=structuredClone(value);}
+   else if(field==='manufacturer') {if(template.manufacturer?.code.trim()&&template.manufacturer?.country.trim()&&(overwrite||(!next.manufacturer?.code.trim()&&!next.manufacturer?.country.trim())))next.manufacturer=structuredClone(template.manufacturer);}
    else if(field==='situacao') {if(overwrite)next.situacao=template.situacao;}
    else if(template[field].trim()&&(overwrite||!next[field].trim()))next[field]=template[field];
   }
   return next;
  });
 }
-export function cloneItem(item:Product):Product {return {...structuredClone(item),id:crypto.randomUUID(),codigo:undefined,versao:undefined,codigosInterno:[]};}
+export function cloneItem(item:Product):Product {return {...structuredClone(item),id:crypto.randomUUID(),codigo:undefined,versao:undefined,portalProductCode:undefined,codigosInterno:[]};}
 export function parsePaste(text:string):{code:string;name:string;description:string}[] {
  const rows:string[][]=[];let row:string[]=[];let cell='';let quoted=false;
  for(let i=0;i<text.length;i++) {const char=text[i];
